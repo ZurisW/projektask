@@ -46,118 +46,23 @@ dalej:
          
 ;        esp -> [ret]
 
-         finit
+
          
 
-
+         mov edi, 0
 
          mov ecx, 1 ; a
 _loop:
 
-         mov esi, ecx  ; store ecx
-               
          push ecx
 
 ;        esp -> [a][ret]
 
-         fild dword [esp] ; st = [st0] = [a]
+call getaddr123457
 
-         fmul st0  ; st = [st0] = [a*a]
+format123457  db "petla1 = %d ", 0xA, 0
 
-         ;sub esp, 4
-         ;fistp dword [esp]
-
-         call getaddr123
-
-format123  db "petla1 = %d", 0xA, 0
-
-getaddr123:
-
-
-;        esp -> [format][a][ret]
-
-         call [ebx + 3*4]  ; printf("n = ")
-
-	 add esp, 4
-	 
-;        esp -> [a][ret]
-
-         mov ecx, 2  ; b
-         
-         
-         ; loop ; ;; ; loop ;; ; ;
-_loop2:
-
-         mov ebp, ecx
-         
-         push ecx
-
-;        esp -> [b][a][ret]
-
-         fild dword [esp] ; st = [st0, st1] = [b, a*a]
-
-         fmul st0  ; st = [st0, st1] = [b*b, a*a]
-
-         faddp st1 ; st = [st0] = [b*b + a*a]
-
-         call getaddr1234
-
-format1234  db "        petla2 = %d", 0xA, 0
-
-getaddr1234:
-
-
-;        esp -> [format][b][a][ret]
-
-         call [ebx + 3*4]  ; printf("n = ")
-
-	 add esp, 4
-	 
-	 ; LOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOP
-
-         mov ecx, 3  ; c
-
-_loop3:
-
-         push ecx
-
-         fild dword [esp] ; st = [st0, st1] = [c, b*b + a*a]
-
-         fmul st0  ; st = [st0, st1] = [c*c, b*b + a*a]
-
-         sub esp, 2*4
-         
-         fistp dword [esp]   ; c*c
-         fist dword [esp+4]  ; b*b + a*a
-
-;        st = [st0, st1] = [b*b + a*a]
-
-         mov eax, [esp]
-         mov edx, [esp+4]
-         
-         push edx
-         push eax
-
-                  call getaddr123456
-
-format123456  db "                 c*c = %d,  a*a+b*b = %d", 0xA, 0
-
-getaddr123456:
-
-             call [ebx + 3*4]  ; printf("n = ")
-
-
-         add esp, 5*4
-
-         cmp eax, edx
-         jne nie
-
-
-         call getaddr12345
-
-format12345  db "                  zwyciestwo", 0xA, 0
-
-getaddr12345:
+getaddr123457:
 
 
 ;        esp -> [format12345][ecx][ret]
@@ -166,13 +71,130 @@ getaddr12345:
 
 	 add esp, 4
 
+
+         mov ecx, 2  ; b
+
+_loop2:
+
+         finit
+         
+         fild dword [esp] ; st = [st0] = [a]
+
+         fmul st0  ; st = [st0] = [a*a]
+
+         push ecx
+         
+;        esp -> [b][a][ret]
+         
+         fild dword [esp] ; st = [st0, st1] = [b, a*a]
+
+         fmul st0  ; st = [st0, st1] = [b*b, a*a]
+
+         faddp st1 ; st = [st0] = [b*b + a*a]
+
+;        esp -> [b][a][ret]
+
+         call getaddr123456
+
+format123456  db "         petla2 = %d", 0xA, 0
+
+getaddr123456:
+
+
+;        esp -> [format12345][b][a][ret]
+
+         call [ebx + 3*4]  ; printf("n = ")
+
+	 add esp, 4
+
+         mov ecx, 3  ; c
+
+_loop3:
+
+         push ecx
+         
+;        esp -> [c][b][a][ret]
+
+         fild dword [esp] ; st = [st0, st1] = [c, b*b + a*a]
+
+         fmul st0  ; st = [st0, st1] = [c*c, b*b + a*a]
+
+         sub esp, 2*4
+         
+;        esp -> [][][c][b][a][ret]         
+
+         fistp dword [esp]   ; c*c
+         fist dword [esp+4]  ; b*b + a*a
+          
+;        st = [st0] = [b*b + a*a]
+
+         call getaddr123458
+
+format123458  db "                 c*c = %d, a*a+b*b = %d, petla3 = %d", 0xA, 0
+
+getaddr123458:
+
+
+;        esp -> [format12345][ecx][ret]
+
+         call [ebx + 3*4]  ; printf("n = ")
+
+	 add esp, 4
+
+;        esp -> [][][c][b][a][ret]
+
+         add esp, 2*4
+
+;        esp -> [c][b][a][ret]
+
+         cmp eax, edx
+         jne nie
+         
+         cmp edi, dword [esp]
+         
+         push edi
+
+         call getaddr123451
+
+format123451  db "                                                        edi = %d, esp = %d", 0xA, 0
+
+getaddr123451:
+
+
+;        esp -> [format12345][c][b][a][ret]
+
+         call [ebx + 3*4]  ; printf("n = ")
+
+	 add esp, 2*4
+         
+
+         je nie
+
+         call getaddr12345
+
+format12345  db "                                                        %d, %d, %d ", 0xA, 0
+
+getaddr12345:
+
+
+;        esp -> [format12345][c][b][a][ret]
+
+         call [ebx + 3*4]  ; printf("n = ")
+
+	 add esp, 4
+	 
+;        esp -> [c][b][a][ret]
+
+	 mov edi, dword [esp]
+
+	 jmp dalej1
+
 nie:
 
          mov ecx, [esp]
          add esp, 4
 
-
-
+;        esp -> [b][a][ret]
 
          cmp ecx, edi
          je dalej2
@@ -185,39 +207,27 @@ nie:
 
 
 dalej2:
+         mov ecx, dword [esp]
 
-
-
-         fild dword [esp]
-
-         fmul st0
-
-         fild dword [esp+4]
+         add esp, 4
          
-         fmul st0
-
-;        st = [st0, st1, st2] = [a*a, b*b, b*b + a*a]
-
-         faddp st1       ; st = [st0, st1] = [a*a+b*b, b*b + a*a]
-         fsubp st1  ; st = [st0] = [b*b + a*a - (a*a+b*b)]
-
-         mov ecx, ebp
-
+;        esp -> [a][ret]
 
          inc ecx
 
          cmp ecx, edi
          je dalej1
 
-
          jne _loop2
 
 
 dalej1:
+
+         mov ecx, dword [esp]
          
-
-
-         mov ecx, esi
+         add esp, 4
+         
+;        esp -> [ret]
 
          inc ecx
 

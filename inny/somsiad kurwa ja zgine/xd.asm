@@ -58,7 +58,7 @@ _loop:
                
          push ecx
 
-;        esp -> [a][ret]
+;        esp -> [ecx][ret]
 
          fild dword [esp] ; st = [st0] = [a]
 
@@ -74,13 +74,13 @@ format123  db "petla1 = %d", 0xA, 0
 getaddr123:
 
 
-;        esp -> [format][a][ret]
+;        esp -> [format][ret]
 
          call [ebx + 3*4]  ; printf("n = ")
 
-	 add esp, 4
+	 add esp, 2*4
 	 
-;        esp -> [a][ret]
+
 
          mov ecx, 2  ; b
          
@@ -91,8 +91,6 @@ _loop2:
          mov ebp, ecx
          
          push ecx
-
-;        esp -> [b][a][ret]
 
          fild dword [esp] ; st = [st0, st1] = [b, a*a]
 
@@ -107,11 +105,11 @@ format1234  db "        petla2 = %d", 0xA, 0
 getaddr1234:
 
 
-;        esp -> [format][b][a][ret]
+;        esp -> [format][ret]
 
          call [ebx + 3*4]  ; printf("n = ")
 
-	 add esp, 4
+	 add esp, 2*4
 	 
 	 ; LOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOP
 
@@ -129,8 +127,6 @@ _loop3:
          
          fistp dword [esp]   ; c*c
          fist dword [esp+4]  ; b*b + a*a
-
-;        st = [st0, st1] = [b*b + a*a]
 
          mov eax, [esp]
          mov edx, [esp+4]
@@ -186,20 +182,11 @@ nie:
 
 dalej2:
 
-
-
-         fild dword [esp]
-
-         fmul st0
-
-         fild dword [esp+4]
-         
-         fmul st0
-
-;        st = [st0, st1, st2] = [a*a, b*b, b*b + a*a]
-
-         faddp st1       ; st = [st0, st1] = [a*a+b*b, b*b + a*a]
-         fsubp st1  ; st = [st0] = [b*b + a*a - (a*a+b*b)]
+         sub esp, 4
+         fistp dword [esp]
+         sub esp, 4
+         fld1
+         fld1
 
          mov ecx, ebp
 
@@ -214,9 +201,7 @@ dalej2:
 
 
 dalej1:
-         
-
-
+          
          mov ecx, esi
 
          inc ecx

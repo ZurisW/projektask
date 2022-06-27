@@ -1,17 +1,31 @@
 [bits 32]
 
+extern   _scanf
+extern   _printf
+extern   _exit
+
+section  .data
+format  db "x = ", 0
+formatx  db "%lf", 0
+format2  db "n = ", 0
+formatn  db "%d", 0
+format3 db "a%d = ", 0
+formata  db "%lf", 0
+formatxx  db "W(%lf) = %lf", 0
+
+section  .text
+
+global   _main
+
+_main:
+
 ;        esp -> [ret] ; ret - adres powrotu do asmloader
 
-         call getaddr
-
-format  db "x = ", 0
-
-getaddr:
-
+         push format
 
 ;        esp -> [format][ret]
 
-         call [ebx + 3*4]  ; printf("x = ")
+         call _printf  ; printf("x = ")
 
          add esp, 4  ; esp = esp + 4
 
@@ -25,15 +39,11 @@ getaddr:
 
 ;        esp -> [addr_x][][][ret]
 
-         call getx  ; push on the stack the run-time address of formatx
-
-formatx  db "%lf", 0
-
-getx:
+         push formatx
 
 ;        esp -> [formatx][addr_x][][][ret]
 
-         call [ebx + 4*4]  ; scanf("%lf", &x)
+         call _scanf  ; scanf("%lf", &x)
 
 ;        esp -> [formatx][addr_x][x][][ret]
 
@@ -41,16 +51,11 @@ getx:
 
 ;        esp -> [x][][ret]
 
-         call getaddr2
-
-format2  db "n = ", 0
-
-getaddr2:
-
+         push format2
 
 ;        esp -> [format2][x][][ret]
 
-         call [ebx + 3*4]  ; printf("n = ")
+         call _printf  ; printf("n = ")
 
          add esp, 4  ; esp = esp + 4
 
@@ -64,15 +69,11 @@ getaddr2:
 
 ;        esp -> [addr_n][][x][][ret]
 
-         call getn
-
-formatn  db "%d", 0
-
-getn:
+         push formatn
 
 ;        esp -> [formatn][addr_n][][x][][ret]
 
-         call [ebx + 4*4]  ; scanf("%d", &n)
+         call _scanf  ; scanf("%d", &n)
 
          add esp, 2*4  ; esp = esp + 8
          
@@ -111,15 +112,11 @@ _loop:
 
 ;        esp -> [ecx][x][][ret]
 
-         call getaddr3
-
-format3 db "a%d = ", 0
-
-getaddr3:
+         push format3
 
 ;        esp -> [format3][ecx][x][][ret]
          
-         call [ebx + 3*4]  ; printf("a%d = ");
+         call _printf  ; printf("a%d = ");
 
          add esp, 2*4  ; esp = esp + 8
 
@@ -135,15 +132,11 @@ getaddr3:
 
 ;        esp -> [addr_a][][][x][][ret]
 
-         call geta
-
-formata  db "%lf", 0
-
-geta:
+         push formata
 
 ;        esp -> [formata][addr_a][][][x][][ret]
 
-         call [ebx + 4*4]  ; scanf("%lf", &a);
+         call _scanf  ; scanf("%lf", &a);
 
          add esp, 2*4  ; esp = esp + 8
 
@@ -199,21 +192,19 @@ dalej2:
 
 ;        esp -> [x][][suma][][ret]
 
-
-
-         call getxx  ; push on the stack the run-time address of format2
-
-formatxx  db "W(%lf) = %lf", 0
-
-getxx:
+         push formatxx
 
 ;        esp -> [formatxx][x][][suma][][ret]
 
-         call [ebx + 3*4]  ; printf("W(%lf) = %lf", x, suma);
+         call _printf  ; printf("W(%lf) = %lf", x, suma);
 
          add esp, 5*4  ; esp = esp - 20
 
 ;        esp -> [ret]
 
          push 0          ; esp -> [0][ret]
-         call [ebx+0*4]  ; exit 0;
+         call _exit  ; exit 0;
+
+;        nasm wielomian.asm -o wielomian.o -f win32
+;        gcc wielomian.o -o wielomian.exe -m32
+;        .\wielomian.exe
