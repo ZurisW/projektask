@@ -1,16 +1,29 @@
-         [bits 32] ; rodzaj kompilacji 32 bitowy
+[bits 32]
+
+extern   _scanf
+extern   _printf
+extern   _exit
+
+section  .data
+
+format   db "liczby: ", 0
+format_x db "%d", 0
+format2  db "posortowane: %d %d %d %d %d", 0
+
+section  .text
+
+global   _main
+
+_main:
 
 ;        esp -> [ret]
 
-         call getaddr  ; push on the stack the run-time address of format
-format:
-         db "liczby: ", 0
-getaddr:
+         push format
 
 ;        esp -> [format][ret]
 
-         call [ebx + 3*4]  ; printf("liczby: ");
-         add esp, 4        ; esp = esp + 4
+         call _printf  ; printf("liczby: ");
+         add esp, 4    ; esp = esp + 4
 
 ;        esp -> [ret]
 
@@ -28,16 +41,12 @@ _loop:
 
 ;        esp -> [addr_x][][ret]
 
-
-         call getaddr_x  ; push on the stack the run-time address of format_x
-format_x:
-         db "%d", 0
-getaddr_x:
+         push format_x
 
 ;        esp -> [format_x][addr_x][][ret]
 
-         call [ebx + 4*4]  ; scanf("%d", &addr_x)
-         add esp, 2*4      ; esp = esp + 8
+         call _scanf   ; scanf("%d", &addr_x)
+         add esp, 2*4  ; esp = esp + 8
          
 ;        esp -> [x][ret]
 
@@ -82,48 +91,18 @@ mniejsza:
          cmp ecx, 5      ; ecx - 5
          jne _loopouter  ; jump if not equal ; ZF affected
 
-         call getaddr2
-format2:
-         db "posortowane: %d %d %d %d %d", 0
-getaddr2:
+         push format2
 
 ;        esp -> [format2][x][x][x][x][x][ret]
 
-         call [ebx + 3*4]  ; printf("posortowane: %d %d %d %d %d", x, x, x, x, x);
-         add esp, 6*4      ; esp = esp + 24
+         call _printf  ; printf("posortowane: %d %d %d %d %d", x, x, x, x, x);
+         add esp, 6*4  ; esp = esp + 24
 
 ;        esp -> [ret]
 
-         push 0          ; esp -> [0][ret]
-         call [ebx+0*4]  ; exit 0;
-
-; asmloader API
-;
-; ESP wskazuje na prawidlowy stos
-; argumenty funkcji wrzucamy na stos
-; EBX zawiera pointer na tablice API
-;
-; call [ebx + NR_FUNKCJI*4] ; wywolanie funkcji API
-;
-; NR_FUNKCJI:
-;
-; 0 - exit
-; 1 - putchar
-; 2 - getchar
-; 3 - printf
-; 4 - scanf
-;
-; To co funkcja zwróci jest w EAX.
-; Po wywolaniu funkcji sciagamy argumenty ze stosu.
-;
-; https://gynvael.coldwind.pl/?id=387
-
-%ifdef COMMENT
-
-ebx    -> [ ][ ][ ][ ] -> exit
-ebx+4  -> [ ][ ][ ][ ] -> putchar
-ebx+8  -> [ ][ ][ ][ ] -> getchar
-ebx+12 -> [ ][ ][ ][ ] -> printf
-ebx+16 -> [ ][ ][ ][ ] -> scanf
-
-%endif
+         push 0      ; esp -> [0][ret]
+         call _exit  ; exit 0;
+         
+;        nasm bubble_relokowalnie.asm -o bubble_relokowalnie.o -f win32
+;        gcc -m32 bubble_relokowalnie.o -o bubble_relokowalnie.exe
+;        ./bubble_relokowalnie.exe

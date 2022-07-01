@@ -5,33 +5,26 @@ int main() {
 	
 	int arr[50], n;
 	
-	printf("Podaj liczbe elementow w tablicy: ");
-	
-	scanf("%d", &n); 
+	printf("liczby: ");
 
 	int i;
-    for(i = 0; i < n; i++){
-    	printf("Podaj wartosc: ");
+    for(i = 0; i < 5; i++){
     	scanf("%d", &arr[i]);
 	}
-        
-	
-	for (i = 0; i < n; i++)
-        printf("%d ", arr[i]);
-        
-	printf("\n");
 	
 	int j;
 	int temp;
-	for(i = 0; i < n; i++) 
-		for(j = 0; j < n; j++) 
+	for(i = 0; i < 5; i++) 
+		for(j = 0; j < 5; j++) 
 			if(arr[j] > arr[j + 1]) {
 				temp = *(&arr[j]);
 				*(&arr[j]) = *(&arr[j + 1]);
 				*(&arr[j + 1]) = temp;
 			}		
+	
+	printf("posortowane: ");
 			
-	for (i = 0; i < n; i++)
+	for (i = 0; i < 5; i++)
         printf("%d ", arr[i]);
 	
 	return 0;
