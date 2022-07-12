@@ -40,22 +40,31 @@ getaddr_x:
 
 ;        esp -> [x][ret]
 
-         call [ebx+2*4] ; eax = getchar();
+         sub esp, 4
+         push esp
+;        esp -> [addr][][x][ret]
 
-         push eax       ; eax -> stack
+         call getaddr_xy  ; push on the stack the run-time address of format_x
+format_xy:
+         db "%c", 0
+getaddr_xy:
 
-;        esp -> [eax][x][ret]
+;        esp -> [format][addr][][x][ret]
 
-         add esp, 4
+         call [ebx + 4*4]  ; scanf("%d", &addr_x)
+         add esp, 2*4      ; esp = esp + 8
 
-;        esp -> [x][ret]
+;        esp -> [][x][ret]
 
          mov ecx, esi  ; ecx = esi  ; restore ecx
 
          inc ecx  ; ecx++
 
-         cmp eax, 0ah  ; eax - 0a ; enter pressed
+         
+         cmp dword [esp], 60fe0ah  ; space
          je _enter
+
+         add esp, 4
 
          jne _loop  ; jump if not equal ; ZF affected
          
@@ -63,12 +72,12 @@ _enter:
          
          mov ebp, ecx  ; ebp = ecx
 
-;        esp -> [x][...][ret]
+;        esp -> [x][x][x][x][x][ret]
 
          mov ecx, 0  ; ecx = 0
 
 _loopouter:
-
+         
          mov esi, ecx  ; esi = ecx ; store ecx
 
          mov ecx, 0  ; ecx = 0
@@ -105,12 +114,10 @@ format2:
          db "posortowane: ", 0
 getaddr2:
 
-;        esp -> [format2][x][...][ret]
+;        esp -> [format2][x][x][x][x][x][ret]
 
          call [ebx + 3*4]  ; printf("posortowane: ");
-         add esp, 4      ; esp = esp + 4
-         
-;        esp -> [format2][x][...][ret]
+         add esp, 4      ; esp = esp + 24
          
          mov ecx, ebp  ; ecx = ebp
          
@@ -123,13 +130,13 @@ format3:
          db "%d ", 0
 getaddr3:
 
-;        esp -> [format2][x][...][ret]
+;        esp -> [format2][x][x][x][x][x][ret]
 
-         call [ebx + 3*4]  ; printf("%d ");
+         call [ebx + 3*4]  ; printf("%d");
          add esp, 2*4      ; esp = esp - 8
          
          mov ecx, esi  ; ecx = esi ; restore ecx
-
+         
          loop _loop2
 
 ;        esp -> [ret]
